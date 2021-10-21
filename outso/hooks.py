@@ -193,11 +193,13 @@ fixtures = [
     ]}
 ]
 
-from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
-from outso.modules.hr.salary_slip.salary_slip import get_data_for_eval
+def override_functions():
+	from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
+	from outso.modules.hr.salary_slip.salary_slip import get_data_for_eval
 
-SalarySlip.get_data_for_eval = get_data_for_eval
+	SalarySlip.get_data_for_eval = get_data_for_eval
 
+override_functions()
 
 override_whitelisted_methods = {}
 
@@ -206,5 +208,5 @@ doc_events = {
 		"before_save" :  "outso.modules.hr.salary_slip.salary_slip.before_save",
 		"before_submit" :  "outso.modules.hr.salary_slip.salary_slip.before_submit",
 		"before_validate": "outso.modules.hr.salary_slip.salary_slip.before_validate"
-	},
+	}
 }
