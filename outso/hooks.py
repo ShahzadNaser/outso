@@ -203,8 +203,8 @@ override_whitelisted_methods = {}
 
 doc_events = {
 	"Salary Slip":{
-		"before_save" :  "nerp.modules.hr.salary_slip.salary_slip.before_save",
-		"before_submit" :  "nerp.modules.hr.salary_slip.salary_slip.before_submit",
-		"before_validate": "nerp.modules.hr.salary_slip.salary_slip.before_validate"
+		"before_save" :  "outso.modules.hr.salary_slip.salary_slip.before_save",
+		"before_submit" :  "outso.modules.hr.salary_slip.salary_slip.before_submit",
+		"before_validate": "outso.modules.hr.salary_slip.salary_slip.before_validate"
 	},
 }
