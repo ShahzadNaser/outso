@@ -31,7 +31,7 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"Salary Slip" : "public/js/salary_slip.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -176,7 +176,7 @@ user_data_fields = [
 doctypes_list = ["Salary Slip"]
 
 fixtures = [
-    {"doctype": "Custom Script", "filters": [
+    {"doctype": "Client Script", "filters": [
         [
             "dt", "not in", doctypes_list
         ]
@@ -193,13 +193,11 @@ fixtures = [
     ]}
 ]
 
-def override_functions():
-	from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
-	from outso.modules.hr.salary_slip.salary_slip import get_data_for_eval
+from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
+from outso.modules.hr.salary_slip.salary_slip import get_data_for_eval
 
-	SalarySlip.get_data_for_eval = get_data_for_eval
+SalarySlip.get_data_for_eval = get_data_for_eval
 
-override_functions()
 
 override_whitelisted_methods = {}
 
