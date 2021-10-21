@@ -101,6 +101,6 @@ def calculate_pieces(self):
             jctl.docstatus = 1 and date(jctl.to_time) between %s and %s and jctl.employee = %s
         GROUP BY
             jc.operation
-    ''', (self.start_date, self.end_date, self.employee), as_dict=True, debug=True)
+    ''', (self.start_date, self.end_date, self.employee), as_dict=True)
 
     return completed_pieces_data
