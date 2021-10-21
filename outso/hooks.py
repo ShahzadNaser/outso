@@ -173,3 +173,38 @@ user_data_fields = [
 # 	"outso.auth.validate"
 # ]
 
+doctypes_list = ["Salary Slip"]
+
+fixtures = [
+    {"doctype": "Custom Script", "filters": [
+        [
+            "dt", "not in", doctypes_list
+        ]
+    ]},
+    {"doctype": "Property Setter", "filters": [
+        [
+            "doc_type", "not in", doctypes_list
+        ]
+    ]},
+    {"doctype": "Custom Field", "filters": [
+        [
+            "dt", "not in", doctypes_list
+        ]
+    ]}
+]
+
+from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
+from outso.modules.hr.salary_slip.salary_slip import get_data_for_eval
+
+SalarySlip.get_data_for_eval = get_data_for_eval
+
+
+override_whitelisted_methods = {}
+
+doc_events = {
+	"Salary Slip":{
+		"before_save" :  "nerp.modules.hr.salary_slip.salary_slip.before_save",
+		"before_submit" :  "nerp.modules.hr.salary_slip.salary_slip.before_submit",
+		"before_validate": "nerp.modules.hr.salary_slip.salary_slip.before_validate"
+	},
+}
