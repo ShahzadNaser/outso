@@ -173,22 +173,22 @@ user_data_fields = [
 # 	"outso.auth.validate"
 # ]
 
-doctypes_list = ["Salary Slip"]
+doctypes_list = ["Attendance"]
 
 fixtures = [
     {"doctype": "Client Script", "filters": [
         [
-            "dt", "not in", doctypes_list
+            "dt", "in", doctypes_list
         ]
     ]},
     {"doctype": "Property Setter", "filters": [
         [
-            "doc_type", "not in", doctypes_list
+            "doc_type", "in", doctypes_list
         ]
     ]},
     {"doctype": "Custom Field", "filters": [
         [
-            "dt", "not in", doctypes_list
+            "dt", "in", doctypes_list
         ]
     ]}
 ]
@@ -206,5 +206,8 @@ doc_events = {
 		"before_save" :  "outso.modules.hr.salary_slip.salary_slip.before_save",
 		"before_submit" :  "outso.modules.hr.salary_slip.salary_slip.before_submit",
 		"before_validate": "outso.modules.hr.salary_slip.salary_slip.before_validate"
+	},
+ 	"Attendance":{
+		"before_save" :  "outso.modules.hr.attendance.attendance.before_save"
 	}
 }
