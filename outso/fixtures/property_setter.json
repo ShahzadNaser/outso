@@ -1,1 +1,36 @@
-[]
+[
+ {
+  "default_value": null,
+  "doc_type": "Salary Slip",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "rounded_total",
+  "modified": "2021-09-22 21:43:15.958715",
+  "name": "Salary Slip-rounded_total-hidden",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "hidden",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "0"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Salary Slip",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "rounded_total",
+  "modified": "2021-09-22 21:43:15.983774",
+  "name": "Salary Slip-rounded_total-print_hide",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "print_hide",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "0"
+ }
+]

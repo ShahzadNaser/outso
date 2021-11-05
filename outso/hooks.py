@@ -173,7 +173,7 @@ user_data_fields = [
 # 	"outso.auth.validate"
 # ]
 
-doctypes_list = ["Attendance"]
+doctypes_list = ["Attendance", "Salary Slip", "Salary Structure Assignment"]
 
 fixtures = [
     {"doctype": "Client Script", "filters": [
@@ -209,5 +209,8 @@ doc_events = {
 	},
  	"Attendance":{
 		"before_save" :  "outso.modules.hr.attendance.attendance.before_save"
+	},
+   	"Salary Structure Assignment":{
+		"before_save" :  "outso.modules.hr.salary_structure_assignment.salary_structure_assignment.before_save"
 	}
 }
