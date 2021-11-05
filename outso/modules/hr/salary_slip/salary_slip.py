@@ -60,6 +60,7 @@ def get_data_for_eval(self):
     data.update(salary_structure_assignment)
     data.update(employee)
     data.update(self.as_dict())
+    self.hourly_rate = salary_structure_assignment.get("hourlyrate")
 
     # set values for components
     salary_components = frappe.get_all("Salary Component", fields=["salary_component_abbr","name"])
@@ -71,6 +72,8 @@ def get_data_for_eval(self):
     #customization calculate and add completed pieces with rates
 
     completed_pieces = calculate_pieces(self)
+    calculate_overtime(self)
+
     for piece in completed_pieces:
         key = re.sub('[^A-Za-z0-9]+', '',piece.salary_component.lower())
         data[key] = piece.amount
@@ -104,3 +107,19 @@ def calculate_pieces(self):
     ''', (self.start_date, self.end_date, self.employee), as_dict=True)
 
     return completed_pieces_data
+
+def calculate_overtime(self):
+    overtime = frappe.db.sql('''
+        SELECT 
+            SUM(overtime_hours) as overtimehours
+        FROM
+            tabAttendance
+        WHERE
+            status = 'Present' AND docstatus = 1
+                AND working_hours > 1
+                AND out_time IS NOT NULL
+                AND in_time IS NOT NULL
+                AND attendance_date BETWEEN %s AND %s
+                AND employee = %s    
+    ''', (self.start_date, self.end_date, self.employee), as_dict=True)
+    self.overtimehours = overtime[0].get("overtimehours") or 0
