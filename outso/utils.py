@@ -2,6 +2,7 @@ import frappe
 import calendar
 from datetime import datetime, date, timedelta
 from outso.constants.globals import SHIFT_HOURS
+import json
 
 def get_timestamp(date_time):
 
@@ -41,3 +42,6 @@ def calculate_hours(start_time, end_time):
         today_shift_end = "{0} {1}".format(tomorrows_date, end_time)
         total_shift_hours = get_time_diff(today_shift_end, today_shift_start, "hours")
     return total_shift_hours
+
+def get_post_params():
+    return json.loads(frappe.request.data)
