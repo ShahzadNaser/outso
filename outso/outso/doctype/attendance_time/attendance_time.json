@@ -5,24 +5,15 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "employee",
+  "device_id",
   "check_time",
+  "employee_checkin",
   "column_break_3",
   "status",
-  "msg"
+  "msg",
+  "error_counter"
  ],
  "fields": [
-  {
-   "fieldname": "employee",
-   "fieldtype": "Link",
-   "in_filter": 1,
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Employee",
-   "options": "Employee",
-   "read_only": 1,
-   "reqd": 1
-  },
   {
    "fieldname": "check_time",
    "fieldtype": "Datetime",
@@ -39,24 +30,47 @@
    "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "status",
+   "label": "Status",
    "options": "Pending\nSuccess\nError",
    "read_only": 1
   },
   {
    "fieldname": "msg",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "msg",
    "read_only": 1
   },
   {
    "fieldname": "column_break_3",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "error_counter",
+   "fieldtype": "Int",
+   "label": "Error Counter",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee_checkin",
+   "fieldtype": "Link",
+   "label": "Employee Checkin",
+   "options": "Employee Checkin",
+   "read_only": 1
+  },
+  {
+   "fieldname": "device_id",
+   "fieldtype": "Int",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Attendance Device ID",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "links": [],
- "modified": "2021-12-21 21:54:38.632319",
+ "modified": "2021-12-27 11:16:37.984254",
  "modified_by": "Administrator",
  "module": "outso",
  "name": "Attendance Time",
