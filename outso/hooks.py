@@ -31,7 +31,10 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Salary Slip" : "public/js/salary_slip.js"}
+doctype_js = {
+    "Salary Slip" : "public/js/salary_slip.js",
+	"Shift Type"  : "public/js/shift_type.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -100,7 +103,7 @@ doctype_js = {"Salary Slip" : "public/js/salary_slip.js"}
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 # 	"all": [
 # 		"outso.tasks.all"
 # 	],
@@ -116,7 +119,16 @@ doctype_js = {"Salary Slip" : "public/js/salary_slip.js"}
 # 	"monthly": [
 # 		"outso.tasks.monthly"
 # 	]
-# }
+	"cron" : {
+		# run everyhour at 30 mins
+		"30 * * * *" : [
+			"outso.modules.hr.attendance.attendance.process_auto_attendance_for_all_shifts_custom"
+		],
+	  "*/10 * * * *" : [
+			"outso.modules.hr.attendance.attendance.mark_checkins"
+		]
+	}
+}
 
 # Testing
 # -------
