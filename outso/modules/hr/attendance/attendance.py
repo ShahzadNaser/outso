@@ -89,16 +89,16 @@ def mark_checkins(attendances=[]):
         try:
             error = False
             if not frappe.db.exists("Employee", {"attendance_device_id":att.get("device_id")}):
-                frappe.db.sql("""update `tabAttendance Time` set error_counter={1} , msg = '{2}', status = '{3}' where name = '{0}' """.format(att.get("name"), att.get("error_counter")+1, "Attendance Device Id Not Found.", "Error"))
+                frappe.db.sql("""update `tabAttendance Time` set error_counter={1} , msg = '{2}', status = '{3}', modified = '{4}' where name = '{0}' """.format(att.get("name"), att.get("error_counter")+1, "Attendance Device Id Not Found.", "Error", frappe.utils.now_datetime()))
                 continue
 
             if not error and  att['check_time']:
                 checkin = mark_employee_checktime(att['device_id'], att['check_time'], "Auto")
-                frappe.db.sql("""update `tabAttendance Time` set status= '{1}' , employee_checkin = '{2}' where name = '{0}' """.format(att.get("name"), "Success", str(checkin.name)))
+                frappe.db.sql("""update `tabAttendance Time` set status= '{1}' , employee_checkin = '{2}', modified = '{3}' where name = '{0}' """.format(att.get("name"), "Success", str(checkin.name), frappe.utils.now_datetime()))
                 continue
 
         except Exception as error:
-            frappe.db.sql("""update `tabAttendance Time` set error_counter={1} , msg = '{2}', status = '{3}' where name = '{0}' """.format(att.get("name"), att.get("error_counter")+1, "Server error please check error logs.", "Error"))
+            frappe.db.sql("""update `tabAttendance Time` set error_counter={1} , msg = '{2}', status = '{3}', modified = '{4}' where name = '{0}' """.format(att.get("name"), att.get("error_counter")+1, "Server error please check error logs.", "Error", frappe.utils.now_datetime()))
             traceback = frappe.get_traceback()
             frappe.log_error(message=traceback , title=att.get("name"))
             continue
