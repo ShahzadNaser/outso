@@ -118,7 +118,8 @@ def mark_employee_checktime(device_id, check_time, attendance_device=None):
     cin_filters = {
         "employee": employee,
         "log_type": "IN",
-        'time':('between', [shift_details.actual_start, shift_details.actual_end])
+        'time':( '>=', shift_details.actual_start),
+        'time':('<=' ,shift_details.actual_end)
     }
 
     if not frappe.db.exists("Employee Checkin", cin_filters):
@@ -129,7 +130,7 @@ def mark_employee_checktime(device_id, check_time, attendance_device=None):
 
         c_sql = """
             SELECT
-                ec.*
+                ec.log_type
             FROM
                 `tabEmployee Checkin` ec
             WHERE
