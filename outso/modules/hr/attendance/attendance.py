@@ -115,14 +115,7 @@ def mark_employee_checktime(device_id, check_time, attendance_device=None):
 
     actual_shift_start, actual_shift_end, shift_details = get_actual_start_end_datetime_of_shift(employee, _checkin_time, True)
 
-    cin_filters = {
-        "employee": employee,
-        "log_type": "IN",
-        'time':( '>=', shift_details.actual_start),
-        'time':('<=' ,shift_details.actual_end)
-    }
-
-    if not frappe.db.exists("Employee Checkin", cin_filters):
+    if not frappe.db.sql(""" SELECT name from `tabEmployee Checkin` where employee = '{0}' and log_type= 'IN' and time between STR_TO_DATE('{1}', '%Y-%m-%d %H:%i:%s') and  STR_TO_DATE('{2}', '%Y-%m-%d %H:%i:%s') """.format(employee, actual_shift_start, actual_shift_end),as_list=True):
         # if there is no checkin, Add New checkin
         return add_log_based_on_employee_field(employee, _checkin_time, log_type="IN", employee_fieldname="name", device_id=attendance_device)
     else:
@@ -161,6 +154,8 @@ def process_auto_attendance_for_all_shifts_custom():
             as shift_end
         FROM
             `tabShift Type`
+        WHERE
+            enable_auto_attendance = 1
         HAVING
             shift_end <= '%s' """%(frappe.utils.now(),frappe.utils.nowdate(),frappe.utils.nowdate(),frappe.utils.nowdate(),frappe.utils.now()), as_dict=True)
 
