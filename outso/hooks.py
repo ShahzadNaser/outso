@@ -185,7 +185,7 @@ user_data_fields = [
 # 	"outso.auth.validate"
 # ]
 
-doctypes_list = ["Attendance", "Salary Slip", "Salary Structure Assignment"]
+doctypes_list = ["Attendance", "Salary Slip", "Salary Structure Assignment", "Employee"]
 
 fixtures = [
     {"doctype": "Client Script", "filters": [
