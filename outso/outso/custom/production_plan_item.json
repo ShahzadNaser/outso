@@ -1,0 +1,32 @@
+{
+ "custom_fields": [],
+ "custom_perms": [],
+ "doctype": "Production Plan Item",
+ "property_setters": [
+  {
+   "_assign": null,
+   "_comments": null,
+   "_liked_by": null,
+   "_user_tags": null,
+   "creation": "2022-01-17 23:56:26.266767",
+   "default_value": null,
+   "doc_type": "Production Plan Item",
+   "docstatus": 0,
+   "doctype_or_field": "DocField",
+   "field_name": "include_exploded_items",
+   "idx": 0,
+   "modified": "2022-01-17 23:56:26.266767",
+   "modified_by": "Administrator",
+   "name": "Production Plan Item-include_exploded_items-default",
+   "owner": "Administrator",
+   "parent": null,
+   "parentfield": null,
+   "parenttype": null,
+   "property": "default",
+   "property_type": "Text",
+   "row_name": null,
+   "value": "0"
+  }
+ ],
+ "sync_on_migrate": 1
+}
