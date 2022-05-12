@@ -1,0 +1,5 @@
+[data-fieldname="po_items"] [data-fieldname="item_code"] .awesomplete ul {width: 440px;}
+[data-fieldname="required_items"] [data-fieldname="item_code"] .awesomplete ul {width: 440px;}
+[data-fieldname="items"] [data-fieldname="item_code"] .awesomplete ul {width: 440px;}
+[data-fieldname="packed_items"] [data-fieldname="item_code"] .awesomplete ul {width: 440px;}
+[data-fieldname="supplied_items"] [data-fieldname="item_code"] .awesomplete ul {width: 440px;}
