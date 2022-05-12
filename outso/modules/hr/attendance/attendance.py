@@ -2,7 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 
 import frappe
-from frappe.utils import cint, flt, get_datetime
+from frappe.utils import cint, flt, get_datetime, get_datetime_str
 from outso.constants.globals import SHIFT_HOURS
 from outso.utils import get_time_diff, get_post_params
 from erpnext.hr.doctype.shift_assignment.shift_assignment import get_actual_start_end_datetime_of_shift
@@ -162,7 +162,9 @@ def process_auto_attendance_for_all_shifts_custom():
     for shift in shift_list:
         doc = frappe.get_doc('Shift Type', shift["name"])
         if(get_datetime(shift["shift_end"]) > doc.last_sync_of_checkin or get_datetime(shift["shift_end"]) > get_datetime(frappe.utils.now()) - timedelta(hours=1,minutes=40)):
-            doc.last_sync_of_checkin = shift["shift_end"]
+            # doc.last_sync_of_checkin = shift["shift_end"]
+            doc.last_sync_of_checkin = get_datetime_str(get_datetime(shift["shift_end"]) + timedelta(minutes=3))
+
             doc.save(ignore_permissions=True)
             # process_auto_attendance(doc = shift["name"], shift_end_time=shift["shift_end"])
             frappe.enqueue(method="outso.modules.hr.attendance.attendance.process_auto_attendance", doc=shift["name"], queue="default" ,shift_end_time=shift["shift_end"] , timeout=13600)
