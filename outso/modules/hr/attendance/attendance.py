@@ -167,7 +167,7 @@ def process_auto_attendance_for_all_shifts_custom():
 
             doc.save(ignore_permissions=True)
             # process_auto_attendance(doc = shift["name"], shift_end_time=shift["shift_end"])
-            frappe.enqueue(method="outso.modules.hr.attendance.attendance.process_auto_attendance", doc=shift["name"], queue="default" ,shift_end_time=shift["shift_end"] , timeout=13600)
+            # frappe.enqueue(method="outso.modules.hr.attendance.attendance.process_auto_attendance", doc=shift["name"], queue="default" ,shift_end_time=shift["shift_end"] , timeout=13600)
 
 def process_auto_attendance(doc,shift_end_time=None):
     if(not shift_end_time):
