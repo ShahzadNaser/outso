@@ -84,9 +84,9 @@ doctype_js = {
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Shift Type": "outso.modules.hr.shift_type.shift_type.CusotmShiftType"
+}
 
 # Document Events
 # ---------------
