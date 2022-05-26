@@ -155,7 +155,7 @@ def process_auto_attendance_for_all_shifts_custom():
         FROM
             `tabShift Type`
         WHERE
-            enable_auto_attendance = 1
+            enable_manual_attendance = 1
         HAVING
             shift_end <= '%s' """%(frappe.utils.now(),frappe.utils.nowdate(),frappe.utils.nowdate(),frappe.utils.nowdate(),frappe.utils.now()), as_dict=True)
 
