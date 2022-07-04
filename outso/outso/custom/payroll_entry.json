@@ -1,0 +1,32 @@
+{
+ "custom_fields": [],
+ "custom_perms": [],
+ "doctype": "Payroll Entry",
+ "property_setters": [
+  {
+   "_assign": null,
+   "_comments": null,
+   "_liked_by": null,
+   "_user_tags": null,
+   "creation": "2022-07-04 12:25:09.665596",
+   "default_value": null,
+   "doc_type": "Payroll Entry",
+   "docstatus": 0,
+   "doctype_or_field": "DocField",
+   "field_name": "salary_slip_based_on_timesheet",
+   "idx": 0,
+   "modified": "2022-07-04 12:25:09.665596",
+   "modified_by": "Administrator",
+   "name": "Payroll Entry-salary_slip_based_on_timesheet-hidden",
+   "owner": "Administrator",
+   "parent": null,
+   "parentfield": null,
+   "parenttype": null,
+   "property": "hidden",
+   "property_type": "Check",
+   "row_name": null,
+   "value": "1"
+  }
+ ],
+ "sync_on_migrate": 1
+}
