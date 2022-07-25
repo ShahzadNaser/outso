@@ -33,6 +33,7 @@ web_include_css = "/assets/outso/css/outso.css"
 # include js in doctype views
 doctype_js = {
     "Salary Slip" : "public/js/salary_slip.js",
+    "Data Import" : "public/js/data_import.js",
 	"Shift Type"  : "public/js/shift_type.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
