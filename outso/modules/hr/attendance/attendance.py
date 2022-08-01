@@ -9,6 +9,8 @@ from erpnext.hr.doctype.shift_assignment.shift_assignment import get_actual_star
 from erpnext.hr.doctype.employee_checkin.employee_checkin import add_log_based_on_employee_field
 from datetime import timedelta
 from frappe.utils.background_jobs import enqueue
+from erpnext.hr.doctype.leave_application.leave_application import get_leave_balance_on
+import json
 
 def before_save(doc, method):
     calculate_overtime(doc)
@@ -29,6 +31,8 @@ def calculate_overtime(doc):
 def sync_att_time(time=False):
     frappe.enqueue(method="outso.modules.hr.attendance.attendance.mark_checkins", queue="default" , timeout=1600)
     return True
+
+
 @frappe.whitelist(allow_guest=True)
 def sync(attendance=[]):
     error = False
@@ -178,3 +182,88 @@ def process_auto_attendance(doc,shift_end_time=None):
         return
 
     doc.process_auto_attendance()
+
+@frappe.whitelist(allow_guest=True)
+def add_leaves(data):
+    if isinstance(data, str):
+        data = json.loads(data)
+    data = frappe._dict(data)
+    if not data.month:
+        frappe.throw("Please select a month.")
+        return
+    start_date = frappe.utils.get_first_day("{}-{}".format("01",data.get("month")))
+    end_date = frappe.utils.get_last_day(start_date)
+    frequencies = frappe.db.sql("""
+        SELECT 
+            employee, COUNT(name) AS frequency
+        FROM
+            `tabAttendance`
+        WHERE
+            docstatus = 1 AND late_entry = 1 AND attendance_date BETWEEN %(from_date)s AND %(to_date)s
+        GROUP BY employee
+        HAVING frequency > 2;
+    """,{"from_date":start_date,"to_date":end_date}, as_dict=1)
+    emps = [emp.employee for emp in frequencies ]
+
+    if not emps:
+        emps = [""]
+    
+    att_records = frappe.db.sql("""
+        SELECT 
+            employee, attendance_date
+        FROM
+            `tabAttendance`
+        WHERE
+            docstatus = 1 AND late_entry = 1 AND attendance_date BETWEEN %s AND %s AND employee IN %s 
+        ORDER BY employee,attendance_date ASC
+    """,(start_date,end_date,emps), as_dict=1)
+
+    employees_dict = {}
+    for att in att_records:
+        if att.get("employee") not in employees_dict:
+            employees_dict[att.get("employee")] = [att.get("attendance_date")]
+        else:
+            employees_dict[att.get("employee")].append(att.get("attendance_date"))
+
+
+    for i in employees_dict:
+        list2 = []
+        for j in range(2,len(employees_dict[i]),3):
+            list2.append(employees_dict[i][j])    
+        employees_dict[i] = list2
+
+    # frappe.enqueue(method="outso.modules.hr.attendance.attendance.mark_leaves", employees_dict=employees_dict, queue="default" , timeout=13600)
+    mark_leaves(employees_dict)
+
+def mark_leaves(employees_dict={}):
+    try:
+        for emp in employees_dict:
+            el = frappe.db.sql("select name from `tabLeave Application` where employee = %s and from_date between %s and %s and docstatus < 2 and description = 'Late Arrival'",(emp,frappe.utils.get_first_day(employees_dict[emp][0]),frappe.utils.get_last_day(employees_dict[emp][0])),debug=True)
+            if employees_dict[emp] and not el:
+                for leave_date in employees_dict[emp]:
+                    doc = frappe.new_doc("Leave Application")
+                    doc.employee = emp
+                    doc.from_date = leave_date
+                    doc.to_date = leave_date
+                    doc.status = "Approved"
+                    doc.description = "Late Arrival"
+                    doc.follow_via_email = 0
+                    
+                    clb  = get_leave_balance_on(emp,"Casual Leave",leave_date)
+                    if clb:
+                        doc.leave_type = "Casual Leave"
+                    else:
+                        slb  = get_leave_balance_on(emp,"Sick Leave",leave_date)
+                        if slb:
+                            doc.leave_type = "Sick Leave"
+                        else:
+                            alb  = get_leave_balance_on(emp,"Annual Leave",leave_date)
+                            if alb:
+                                doc.leave_type = "Annual Leave"
+                            else:
+                                doc.leave_type = "Leave Without Pay"
+                    doc.flags.ignore_validate = True
+                    doc.save(ignore_permissions=True)
+                    # doc.submit()
+    except Exception :
+        frappe.log_error(frappe.get_traceback(),"Auto Leave Application")
