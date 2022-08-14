@@ -3,7 +3,7 @@
 
 import frappe
 from erpnext.hr.doctype.shift_type.shift_type import ShiftType
-from frappe.utils import cint
+from frappe.utils import cint, add_months, today ,format_date
 import itertools
 
 class CusotmShiftType(ShiftType):
@@ -28,3 +28,7 @@ class CusotmShiftType(ShiftType):
             mark_attendance_and_link_log(single_shift_logs, attendance_status, key[1].date(), working_hours, late_entry, early_exit, in_time, out_time, self.name)
         for employee in self.get_assigned_employee(self.process_attendance_after, True):
             self.mark_absent_for_dates_with_no_attendance(employee)
+
+
+        frappe.enqueue(method="outso.modules.hr.attendance.attendance.add_leaves", data={"month":format_date(add_months(today(), -1),"MM-YYYY")}, queue="default" , timeout=13600)
+        frappe.enqueue(method="outso.modules.hr.attendance.attendance.add_leaves", data={"month":format_date(today(),"MM-YYYY")}, queue="default" , timeout=13600)
