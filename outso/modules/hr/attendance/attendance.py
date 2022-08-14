@@ -189,8 +189,10 @@ def add_leaves(data):
         data = json.loads(data)
     data = frappe._dict(data)
     if not data.month:
-        frappe.throw("Please select a month.")
+        frappe.log_error("No Month mentioned","Auto Leave Application")
         return
+    frappe.log_error("{} {}".format(data,data.get("month")),"Auto Leave Application")
+
     start_date = frappe.utils.get_first_day("{}-{}".format("01",data.get("month")))
     end_date = frappe.utils.get_last_day(start_date)
     frequencies = frappe.db.sql("""
@@ -210,11 +212,20 @@ def add_leaves(data):
     
     att_records = frappe.db.sql("""
         SELECT 
-            employee, attendance_date
+            att.employee, att.attendance_date
         FROM
-            `tabAttendance`
+            `tabAttendance` att
         WHERE
-            docstatus = 1 AND late_entry = 1 AND attendance_date BETWEEN %s AND %s AND employee IN %s 
+            att.docstatus = 1 AND att.late_entry = 1  AND att.status IN ('Present', 'Absent') AND att.attendance_date BETWEEN %s AND %s AND att.employee IN %s AND att.attendance_date > (
+                SELECT 
+                    temp_att.attendance_date
+                FROM 
+                    `tabAttendance` temp_att
+                WHERE
+                    temp_att.docstatus = 1 AND temp_att.late_arrival_leave = 1 AND temp_att.employee = att.employee
+                ORDER BY 
+                    temp_att.attendance_date DESC
+                LIMIT 1 OFFSET 0)
         ORDER BY employee,attendance_date ASC
     """,(start_date,end_date,emps), as_dict=1)
 
@@ -232,14 +243,15 @@ def add_leaves(data):
             list2.append(employees_dict[i][j])    
         employees_dict[i] = list2
 
-    # frappe.enqueue(method="outso.modules.hr.attendance.attendance.mark_leaves", employees_dict=employees_dict, queue="default" , timeout=13600)
-    mark_leaves(employees_dict)
-
+    frappe.enqueue(method="outso.modules.hr.attendance.attendance.mark_leaves", employees_dict=employees_dict, queue="default" , timeout=13600)
+    # mark_leaves(employees_dict)
+    return True
 def mark_leaves(employees_dict={}):
     try:
         for emp in employees_dict:
-            el = frappe.db.sql("select name from `tabLeave Application` where employee = %s and from_date between %s and %s and docstatus < 2 and description = 'Late Arrival'",(emp,frappe.utils.get_first_day(employees_dict[emp][0]),frappe.utils.get_last_day(employees_dict[emp][0])),debug=True)
-            if employees_dict[emp] and not el:
+            el = frappe.db.sql("select name from `tabLeave Application` where employee = %s and from_date between %s and %s and docstatus < 2 and description = 'Late Arrival'",(emp,frappe.utils.get_first_day(employees_dict[emp][0]),frappe.utils.get_last_day(employees_dict[emp][0])))
+
+            if employees_dict[emp] and not el and frappe.db.get_value("Employee",emp,"employment_type") != "Piece Rate":
                 for leave_date in employees_dict[emp]:
                     doc = frappe.new_doc("Leave Application")
                     doc.employee = emp
