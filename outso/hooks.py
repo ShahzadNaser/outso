@@ -34,11 +34,12 @@ web_include_css = "/assets/outso/css/outso.css"
 doctype_js = {
     "Salary Slip" : "public/js/salary_slip.js",
     "Data Import" : "public/js/data_import.js",
-	"Shift Type"  : "public/js/shift_type.js"
+	"Shift Type"  : "public/js/shift_type.js",
+    "Material Request" : "public/js/material_request.js"
+ 
 }
 doctype_list_js = {
-    "Attendance" : "public/js/attendance_list.js"
-}
+    "Attendance" : "public/js/attendance_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -88,7 +89,8 @@ doctype_list_js = {
 # Override standard doctype classes
 
 override_doctype_class = {
-	"Shift Type": "outso.modules.hr.shift_type.shift_type.CusotmShiftType"
+	"Shift Type": "outso.modules.hr.shift_type.shift_type.CusotmShiftType",
+	"Salary Slip": "outso.modules.hr.salary_slip.salary_slip.CustomSalarySlip"
 }
 
 # Document Events
@@ -124,9 +126,9 @@ scheduler_events = {
 # 	]
 	"cron" : {
 		# run everyhour at 30 mins
-		"30 * * * *" : [
-			"outso.modules.hr.attendance.attendance.process_auto_attendance_for_all_shifts_custom"
-		],
+		# "30 * * * *" : [
+		# 	"outso.modules.hr.attendance.attendance.process_auto_attendance_for_all_shifts_custom"
+		# ],
 	  "*/10 * * * *" : [
 			"outso.modules.hr.attendance.attendance.mark_checkins"
 		]
@@ -208,13 +210,14 @@ fixtures = [
     ]}
 ]
 
-from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
-from outso.modules.hr.salary_slip.salary_slip import get_data_for_eval
+# from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
+# from outso.modules.hr.salary_slip.salary_slip import get_data_for_eval
 
-SalarySlip.get_data_for_eval = get_data_for_eval
+# SalarySlip.get_data_for_eval = get_data_for_eval
 
-
-override_whitelisted_methods = {}
+override_whitelisted_methods = {
+	"frappe.utils.change_log.show_update_popup": "outso.api.utils.show_update_popup"
+}
 
 doc_events = {
 	"Salary Slip":{
