@@ -220,11 +220,6 @@ override_whitelisted_methods = {
 }
 
 doc_events = {
-	"Salary Slip":{
-		"before_save" :  "outso.modules.hr.salary_slip.salary_slip.before_save",
-		"before_submit" :  "outso.modules.hr.salary_slip.salary_slip.before_submit",
-		"before_validate": "outso.modules.hr.salary_slip.salary_slip.before_validate"
-	},
  	"Attendance":{
 		"before_save" :  "outso.modules.hr.attendance.attendance.before_save"
 	},
