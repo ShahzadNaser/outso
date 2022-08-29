@@ -38,8 +38,8 @@ doctype_js = {
     "Material Request" : "public/js/material_request.js"
  
 }
-doctype_list_js = {
-    "Attendance" : "public/js/attendance_list.js"}
+# doctype_list_js = {
+#     "Attendance" : "public/js/attendance_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -210,10 +210,6 @@ fixtures = [
     ]}
 ]
 
-# from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
-# from outso.modules.hr.salary_slip.salary_slip import get_data_for_eval
-
-# SalarySlip.get_data_for_eval = get_data_for_eval
 
 override_whitelisted_methods = {
 	"frappe.utils.change_log.show_update_popup": "outso.api.utils.show_update_popup"
