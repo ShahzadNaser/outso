@@ -12,9 +12,8 @@ class CusotmShiftType(ShiftType):
         from erpnext.hr.doctype.employee_checkin.employee_checkin import mark_attendance_and_link_log
         if not cint(self.enable_manual_attendance) or not self.process_attendance_after or not self.last_sync_of_checkin or cint(self.enable_auto_attendance):
             return
-
+        frappe.log_error("Skip_auto_attendance:0")
         filters = {
-            'skip_auto_attendance':'0',
             'attendance':('is', 'not set'),
             'time':('>=', self.process_attendance_after),
             'shift_actual_end': ('<', self.last_sync_of_checkin),
