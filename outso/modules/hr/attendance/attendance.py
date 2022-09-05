@@ -10,6 +10,8 @@ from erpnext.hr.doctype.employee_checkin.employee_checkin import add_log_based_o
 from datetime import timedelta
 from frappe.utils.background_jobs import enqueue
 from erpnext.hr.doctype.leave_application.leave_application import get_leave_balance_on
+from outso.modules.hr.shift_type.shift_type import get_shift_details
+
 import json
 
 def before_save(doc, method):
@@ -18,8 +20,14 @@ def before_save(doc, method):
 def calculate_overtime(doc):
     """Customization calculate overtime according to requirements"""
     if doc.working_hours and doc.working_hours > SHIFT_HOURS:
-        temp_hours = get_time_diff(doc.out_time,doc.in_time, "hours") - SHIFT_HOURS
+
+        shift_details = get_shift_details(doc.get("shift"))
+        in_time = get_datetime("{0} {1}".format(doc.get("attendance_date"),shift_details.get("start_time")))
+        in_time = doc.in_time if get_datetime(doc.in_time) > in_time else in_time
+
+        temp_hours = get_time_diff(doc.out_time,in_time, "hours") - SHIFT_HOURS
         overtime_hours , rem = divmod(temp_hours,1)
+
         if(rem >= .50):
             if(rem >= .75):
                 overtime_hours += 1

@@ -31,3 +31,17 @@ class CusotmShiftType(ShiftType):
 
         frappe.enqueue(method="outso.modules.hr.attendance.attendance.add_leaves", data={"month":format_date(add_months(today(), -1),"MM-YYYY")}, queue="default" , timeout=13600)
         frappe.enqueue(method="outso.modules.hr.attendance.attendance.add_leaves", data={"month":format_date(today(),"MM-YYYY")}, queue="default" , timeout=13600)
+
+    def before_save(self):
+        frappe.cache().hdel(self.name, "config")
+
+def get_shift_details(shift=None):
+    if not shift:
+        return False
+    _config = frappe.cache().hget(shift, "config")
+    if not _config:
+        _config = frappe.get_doc('Shift Type',shift)
+        frappe.cache().hdel(shift, "config")
+        frappe.cache().hset(shift, "config", _config)
+    return _config or {}
+

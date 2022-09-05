@@ -126,9 +126,9 @@ scheduler_events = {
 # 	]
 	"cron" : {
 		# run everyhour at 30 mins
-		# "30 * * * *" : [
-		# 	"outso.modules.hr.attendance.attendance.process_auto_attendance_for_all_shifts_custom"
-		# ],
+		"30 * * * *" : [
+			"outso.modules.hr.attendance.attendance.process_auto_attendance_for_all_shifts_custom"
+		],
 	  "*/10 * * * *" : [
 			"outso.modules.hr.attendance.attendance.mark_checkins"
 		]
