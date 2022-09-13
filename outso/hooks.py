@@ -90,7 +90,8 @@ doctype_js = {
 
 override_doctype_class = {
 	"Shift Type": "outso.modules.hr.shift_type.shift_type.CusotmShiftType",
-	"Salary Slip": "outso.modules.hr.salary_slip.salary_slip.CustomSalarySlip"
+	"Salary Slip": "outso.modules.hr.salary_slip.salary_slip.CustomSalarySlip",
+ 	"Leave Application": "outso.modules.hr.leave_application.leave_application.CusotmLeaveApplication"
 }
 
 # Document Events
