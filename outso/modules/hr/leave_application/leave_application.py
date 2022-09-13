@@ -2,7 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 
 import frappe
-from erpnext.hr.doctype.leave_applicatoin.leave_application import LeaveApplication
+from erpnext.hr.doctype.leave_application.leave_application import LeaveApplication
 from frappe.utils import getdate
 from erpnext.buying.doctype.supplier_scorecard.supplier_scorecard import daterange
 
