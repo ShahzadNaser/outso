@@ -22,7 +22,7 @@ class CusotmLeaveApplication(LeaveApplication):
 						doc.db_set('status', status)
 						doc.db_set('leave_type', self.leave_type)
 						doc.db_set('leave_application', self.name)
-						doc.db_set('leave_arrival_leave',1)
+						doc.db_set('late_arrival_leave',1)
 				else:
 					# make new attendance and submit it
 					doc = frappe.new_doc("Attendance")
@@ -33,7 +33,7 @@ class CusotmLeaveApplication(LeaveApplication):
 					doc.leave_type = self.leave_type
 					doc.leave_application = self.name
 					doc.status = status
-					doc.leave_arrival_leave = 1
+					doc.late_arrival_leave = 1
 					doc.flags.ignore_validate = True
 					doc.insert(ignore_permissions=True)
 					doc.submit()
