@@ -210,7 +210,8 @@ fixtures = [
 
 
 override_whitelisted_methods = {
-	"frappe.utils.change_log.show_update_popup": "outso.api.utils.show_update_popup"
+	"frappe.utils.change_log.show_update_popup": "outso.api.utils.show_update_popup",
+	"frappe.desk.query_report.run": "outso.reports.overrides.run"
 }
 
 doc_events = {
