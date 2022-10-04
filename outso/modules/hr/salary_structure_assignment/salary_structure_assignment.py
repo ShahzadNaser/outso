@@ -5,4 +5,4 @@ import frappe
 
 def before_save(self, method):
     if self.base:
-        self.hourlyrate = round(self.base/(30*8), 2)
+        self.hourlyrate = round(self.base/(26*8), 2)
