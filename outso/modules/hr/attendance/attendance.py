@@ -201,7 +201,7 @@ def add_leaves(data):
         return
     frappe.log_error("{} {}".format(data,data.get("month")),"Auto Leave Application")
 
-    start_date = frappe.utils.get_first_day("{}-{}".format("01",data.get("month")))
+    start_date = frappe.utils.get_first_day("{}-{}".format(data.get("month"),"01"))
     end_date = frappe.utils.get_last_day(start_date)
     frequencies = frappe.db.sql("""
         SELECT 
@@ -224,7 +224,7 @@ def add_leaves(data):
         FROM
             `tabAttendance` att
         WHERE
-            att.docstatus = 1 AND att.late_entry = 1  AND att.status IN ('Present', 'Absent') AND att.attendance_date BETWEEN %s AND %s AND att.employee IN %s AND att.attendance_date > (
+            att.docstatus = 1 AND att.late_entry = 1  AND att.status IN ('Present', 'Absent') AND att.attendance_date BETWEEN %s AND %s AND att.employee IN %s AND att.attendance_date > IFNULL((
                 SELECT 
                     temp_att.attendance_date
                 FROM 
@@ -233,9 +233,9 @@ def add_leaves(data):
                     temp_att.docstatus = 1 AND temp_att.late_arrival_leave = 1 AND temp_att.employee = att.employee
                 ORDER BY 
                     temp_att.attendance_date DESC
-                LIMIT 1 OFFSET 0)
+                LIMIT 1 OFFSET 0),%s)
         ORDER BY employee,attendance_date ASC
-    """,(start_date,end_date,emps), as_dict=1)
+    """,(start_date,end_date,emps,start_date), as_dict=1)
 
     employees_dict = {}
     for att in att_records:
