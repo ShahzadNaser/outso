@@ -201,7 +201,7 @@ def add_leaves(data):
         return
     frappe.log_error("{} {}".format(data,data.get("month")),"Auto Leave Application")
 
-    start_date = frappe.utils.get_first_day("{}-{}".format("01",data.get("month")))
+    start_date = frappe.utils.get_first_day("{}-{}".format(data.get("month"),"01"))
     end_date = frappe.utils.get_last_day(start_date)
     frequencies = frappe.db.sql("""
         SELECT 
