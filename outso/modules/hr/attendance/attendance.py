@@ -257,6 +257,8 @@ def add_leaves(data):
 def mark_leaves(employees_dict={}):
     try:
         for emp in employees_dict:
+            if not employees_dict[emp]:
+                continue
             el = frappe.db.sql("select name from `tabLeave Application` where employee = %s and from_date between %s and %s and docstatus < 2 and description = 'Late Arrival'",(emp,frappe.utils.get_first_day(employees_dict[emp][0]),frappe.utils.get_last_day(employees_dict[emp][0])))
 
             if employees_dict[emp] and not el and frappe.db.get_value("Employee",emp,"employment_type") != "Piece Rate":
