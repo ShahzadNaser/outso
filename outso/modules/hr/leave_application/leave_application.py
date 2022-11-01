@@ -2,7 +2,8 @@
 # License: GNU General Public License v3. See license.txt
 
 import frappe
-from erpnext.hr.doctype.leave_application.leave_application import LeaveApplication
+from frappe import _
+from erpnext.hr.doctype.leave_application.leave_application import LeaveApplication, AttendanceAlreadyMarkedError
 from frappe.utils import getdate
 from erpnext.buying.doctype.supplier_scorecard.supplier_scorecard import daterange
 
@@ -36,3 +37,10 @@ class CusotmLeaveApplication(LeaveApplication):
 					doc.flags.ignore_validate = True
 					doc.insert(ignore_permissions=True)
 					doc.submit()
+	def validate_attendance(self):
+		attendance = frappe.db.sql("""select name from `tabAttendance` where employee = %s and (attendance_date between %s and %s)
+					and status = "Present" and docstatus = 1""",
+			(self.employee, self.from_date, self.to_date))
+		if attendance and self.description != "Late Arrival":
+			frappe.throw(_("Attendance for employee {0} is already marked for this day").format(self.employee),
+				AttendanceAlreadyMarkedError)

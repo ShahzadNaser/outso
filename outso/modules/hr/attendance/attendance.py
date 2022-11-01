@@ -235,7 +235,7 @@ def add_leaves(data):
                     temp_att.attendance_date DESC
                 LIMIT 1 OFFSET 0),%s)
         ORDER BY employee,attendance_date ASC
-    """,(start_date,end_date,emps,start_date), as_dict=1)
+    """,(start_date,end_date,emps,frappe.utils.add_to_date(start_date,days=-1)), as_dict=1)
 
     employees_dict = {}
     for att in att_records:
@@ -255,6 +255,7 @@ def add_leaves(data):
     # mark_leaves(employees_dict)
     return True
 def mark_leaves(employees_dict={}):
+    from erpnext.hr.doctype.leave_application.leave_application import get_leave_approver    
     try:
         for emp in employees_dict:
             if not employees_dict[emp]:
@@ -265,12 +266,13 @@ def mark_leaves(employees_dict={}):
                 for leave_date in employees_dict[emp]:
                     doc = frappe.new_doc("Leave Application")
                     doc.employee = emp
+                    doc.employee_name = frappe.db.get_value("Employee",emp,"employee_name")
                     doc.from_date = leave_date
                     doc.to_date = leave_date
                     doc.status = "Approved"
                     doc.description = "Late Arrival"
                     doc.follow_via_email = 0
-                    
+                    doc.leave_approver = get_leave_approver(emp)
                     clb  = get_leave_balance_on(emp,"Casual Leave",leave_date)
                     if clb:
                         doc.leave_type = "Casual Leave"
@@ -284,8 +286,8 @@ def mark_leaves(employees_dict={}):
                                 doc.leave_type = "Annual Leave"
                             else:
                                 doc.leave_type = "Leave Without Pay"
-                    doc.flags.ignore_validate = True
                     doc.save(ignore_permissions=True)
                     # doc.submit()
     except Exception :
         frappe.log_error(frappe.get_traceback(),"Auto Leave Application")
+        
