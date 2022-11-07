@@ -33,6 +33,9 @@ def get_wo_details(employee=None, from_date=today(), to_date=today()):
         SELECT 
             jctl.employee,
             jc.work_order,
+            jc.production_item,
+            item.item_name,
+            item.image,
             jc.operation,
             date(jctl.to_time) as completion_date, 
             pwri.salary_component,
@@ -45,6 +48,11 @@ def get_wo_details(employee=None, from_date=today(), to_date=today()):
                 `tabJob Card` jc
             ON
                 pwri.operation = jc.operation
+        INNER JOIN 
+                `tabItem` item
+            ON
+                item.name = jc.production_item
+
         LEFT JOIN 
             `tabJob Card Time Log` jctl
             ON
