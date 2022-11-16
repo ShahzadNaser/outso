@@ -48,7 +48,7 @@ def get_wo_details(employee=None, from_date=today(), to_date=today()):
                 `tabJob Card` jc
             ON
                 pwri.operation = jc.operation
-        INNER JOIN 
+        LEFT JOIN 
                 `tabItem` item
             ON
                 item.name = jc.production_item
