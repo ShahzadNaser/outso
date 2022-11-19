@@ -26,7 +26,7 @@ def get_wo_details(filters={}):
 		SELECT 
 			jctl.employee as employee,
 			emp.employee_name as employee_name,
-			round((pwri.rate/pwri.pieces)*sum(jctl.completed_qty),3)  as piece_rate_amount
+			sum(round((pwri.rate/pwri.pieces),3) * jctl.completed_qty ) piece_rate_amount
 		FROM
 			`tabPiece Work Rate Item` pwri
 		LEFT JOIN 
