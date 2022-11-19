@@ -46,7 +46,7 @@ def get_wo_details(filters={}):
 			jctl.docstatus = 1 and jctl.to_time is not null and date(jctl.to_time) between %s and %s
 		GROUP BY
 			jctl.employee
-	''', (from_date, to_date), as_dict=True,debug=True)
+	''', (from_date, to_date), as_dict=True)
 
 	return completed_pieces_data or []
 
