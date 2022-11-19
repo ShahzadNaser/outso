@@ -41,7 +41,7 @@ def get_wo_details(employee=None, from_date=today(), to_date=today()):
             pwri.salary_component,
             sum(jctl.completed_qty) as completed_qty,
             round(pwri.rate/pwri.pieces,3) as per_piece_rate,
-            round((pwri.rate/pwri.pieces)*sum(jctl.completed_qty),3)  as total_payment
+            sum(round((pwri.rate/pwri.pieces),3) * jctl.completed_qty )  as total_payment
         FROM
             `tabPiece Work Rate Item` pwri
         LEFT JOIN 
