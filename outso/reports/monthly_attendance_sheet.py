@@ -111,8 +111,8 @@ def monthly_attendance_sheet():
                         leaves[d.leave_type] = d.count
 
                 for d in leave_list:
-                    if d in leaves:
-                        row.append(leaves[d])
+                    if d.split(':', 1)[0] in leaves:
+                        row.append(leaves.get(d.split(':', 1)[0]))
                     else:
                         row.append("0.0")
 
