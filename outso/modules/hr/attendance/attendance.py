@@ -19,13 +19,17 @@ def before_save(doc, method):
 
 def calculate_overtime(doc):
     """Customization calculate overtime according to requirements"""
-    if doc.working_hours and doc.working_hours > SHIFT_HOURS:
+    if doc.working_hours and doc.working_hours > 7:
 
         shift_details = get_shift_details(doc.get("shift"))
+        shift_start_time = get_datetime("{0} {1}".format(doc.get("attendance_date"),shift_details.get("start_time")))
+        shift_end_time = get_datetime("{0} {1}".format(doc.get("attendance_date"),shift_details.get("end_time")))
+        shift_hours = get_time_diff(shift_end_time ,shift_start_time, "hours") or SHIFT_HOURS
+
         in_time = get_datetime("{0} {1}".format(doc.get("attendance_date"),shift_details.get("start_time")))
         in_time = doc.in_time if get_datetime(doc.in_time) > in_time else in_time
 
-        temp_hours = get_time_diff(doc.out_time,in_time, "hours") - SHIFT_HOURS
+        temp_hours = get_time_diff(doc.out_time,in_time, "hours") - shift_hours
         overtime_hours , rem = divmod(temp_hours,1)
 
         if(rem >= .50):
