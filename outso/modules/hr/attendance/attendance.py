@@ -20,7 +20,7 @@ def before_save(doc, method):
 def calculate_overtime(doc):
     """Customization calculate overtime according to requirements"""
     if doc.working_hours and doc.working_hours > 7:
-
+        doc.overtime_hours = 0
         shift_details = get_shift_details(doc.get("shift"))
         shift_start_time = get_datetime("{0} {1}".format(doc.get("attendance_date"),shift_details.get("start_time")))
         shift_end_time = get_datetime("{0} {1}".format(doc.get("attendance_date"),shift_details.get("end_time")))
@@ -37,7 +37,8 @@ def calculate_overtime(doc):
                 overtime_hours += 1
             else:
                 overtime_hours += .5
-        doc.overtime_hours = flt(overtime_hours)
+        if overtime_hours > 0:
+            doc.overtime_hours = flt(overtime_hours)
 
 @frappe.whitelist(allow_guest=True)
 def sync_att_time(time=False):
