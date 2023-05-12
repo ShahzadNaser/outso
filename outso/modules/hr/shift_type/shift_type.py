@@ -29,7 +29,7 @@ class CusotmShiftType(ShiftType):
             self.mark_absent_for_dates_with_no_attendance(employee)
 
 
-        frappe.enqueue(method="outso.modules.hr.attendance.attendance.add_leaves", data={"month":format_date(add_months(today(), -1),"YYYY-MM")}, queue="default" , timeout=13600)
+        # frappe.enqueue(method="outso.modules.hr.attendance.attendance.add_leaves", data={"month":format_date(add_months(today(), -1),"YYYY-MM")}, queue="default" , timeout=13600)
         frappe.enqueue(method="outso.modules.hr.attendance.attendance.add_leaves", data={"month":format_date(today(),"YYYY-MM")}, queue="default" , timeout=13600)
 
     def before_save(self):
