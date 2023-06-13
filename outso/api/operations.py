@@ -38,7 +38,7 @@ def get_op_details(item_name=None, from_date=today(), to_date=today()):
 
     operations = frappe.db.sql("""
         SELECT 
-            bom.item_code,
+            bom.item as item_code,
             bom.item_name,
             jctl.employee,
             jc.work_order,
