@@ -35,7 +35,6 @@ def get_op_details(item_name=None, from_date=None, to_date=None):
             item_name LIKE %s
 
     """, ('%'+item_name),as_dict=True))
-    print(items_str)
 
     cond = " AND  1=1 "
 
