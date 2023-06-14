@@ -2,10 +2,10 @@
 # License: GNU General Public License v3. See license.txt
 
 import frappe
-from frappe.utils import today
+from frappe.utils import today,getdate
 from outso.utils import get_post_params
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get():
     error = False
     data = []
@@ -25,29 +25,46 @@ def get():
         'msg': msg
     }
 
-def get_op_details(item_name=None, from_date=today(), to_date=today()):
+def get_op_details(item_name=None, from_date=None, to_date=None):
     if not item_name:
         return []
-    items = [item.name for item in frappe.db.sql("""
+    items_str = ', '.join(f"'{item.name}'" for item  in frappe.db.sql("""
         SELECT name
         FROM `tabBOM`
         WHERE
             item_name LIKE %s
 
-    """, ('%'+item_name),as_dict=True)]
+    """, ('%'+item_name),as_dict=True))
+    print(items_str)
+
+    cond = " AND  1=1 "
+
+    if from_date:
+        cond += " and date(jctl.from_time) >= '{}'".format(getdate(from_date))
+
+    if to_date:
+        cond += " and date(jctl.to_time) <= '{}'".format(getdate(to_date))
 
     operations = frappe.db.sql("""
         SELECT 
             bom.item as item_code,
             bom.item_name,
+            item.image,
             jctl.employee,
             jc.work_order,
+            jc.status,
             jc.operation,
+            jctl.from_time,
+            jctl.to_time,
             date(jctl.to_time) as completion_date, 
             sum(jctl.completed_qty) as completed_qty,
             sum(jctl.time_in_mins) as time_in_minutes
         FROM
             `tabBOM` bom
+        LEFT JOIN 
+                `tabItem` item
+            ON
+                bom.item = item.name
         LEFT JOIN 
                 `tabJob Card` jc
             ON
@@ -57,11 +74,11 @@ def get_op_details(item_name=None, from_date=today(), to_date=today()):
             ON
                 jc.name = jctl.parent
         WHERE 
-            jctl.docstatus = 1 and jctl.to_time is not null and bom.name in (%s)
+            jctl.docstatus = 1 and bom.name in ({}) {}
         GROUP BY
-            date(jctl.to_time), jc.work_order,jc.operation
+            jctl.name
 
-    """ % (','.join(['%s'] *len(items))), items,as_dict=True)
+    """.format(items_str, cond),as_dict=True)
 
     
     return operations or []
