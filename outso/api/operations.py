@@ -28,14 +28,17 @@ def get():
 def get_op_details(item_name=None, from_date=None, to_date=None):
     if not item_name:
         return []
-    items_str = ', '.join(f"'{item.name}'" for item  in frappe.db.sql("""
+    item_boms = frappe.db.sql("""
         SELECT name
         FROM `tabBOM`
         WHERE
             item_name LIKE %s
 
-    """, ('%'+item_name),as_dict=True))
+    """, ('%'+item_name),as_dict=True) 
+    if not item_boms:
+        return []
 
+    items_str = ', '.join(f"'{item.name}'" for item  in item_boms)        
     cond = " AND  1=1 "
 
     if from_date:
