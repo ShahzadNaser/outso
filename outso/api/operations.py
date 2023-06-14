@@ -35,15 +35,14 @@ def get_op_details(item_name=None, from_date=None, to_date=None):
             item_name LIKE %s
 
     """, ('%'+item_name),as_dict=True))
-    print(items_str)
 
     cond = " AND  1=1 "
 
     if from_date:
-        cond += " and date(jctl.from_time) >= '{}'".format(getdate(from_date))
+        cond += " AND date(jctl.from_time) >= '{}' ".format(getdate(from_date))
 
     if to_date:
-        cond += " and date(jctl.to_time) <= '{}'".format(getdate(to_date))
+        cond += " AND date(jctl.to_time) <= '{}' ".format(getdate(to_date))
 
     operations = frappe.db.sql("""
         SELECT 
@@ -55,7 +54,7 @@ def get_op_details(item_name=None, from_date=None, to_date=None):
             jc.status,
             jc.operation,
             jctl.from_time,
-            jctl.to_time,
+            jctl.to_time, 
             date(jctl.to_time) as completion_date, 
             sum(jctl.completed_qty) as completed_qty,
             sum(jctl.time_in_mins) as time_in_minutes
