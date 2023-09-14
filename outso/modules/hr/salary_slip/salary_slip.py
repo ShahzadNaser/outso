@@ -124,7 +124,6 @@ class CustomSalarySlip(SalarySlip):
         total_structured_tax_amount = self.calculate_tax_by_tax_slab(
             total_taxable_earnings_without_full_tax_addl_components, tax_slab)
         current_structured_tax_amount = (total_structured_tax_amount - previous_total_paid_taxes) / remaining_sub_periods
-
         # Total taxable earnings with additional earnings with full tax
         full_tax_on_additional_earnings = 0.0
         if current_additional_earnings_with_full_tax:
@@ -135,6 +134,49 @@ class CustomSalarySlip(SalarySlip):
         if flt(current_tax_amount) < 0:
             current_tax_amount = 0
         return current_tax_amount
+
+    def get_taxable_earnings_for_prev_period(self, start_date, end_date, allow_tax_exemption=False):
+        taxable_earnings = frappe.db.sql("""
+            select sum(sd.default_amount)
+            from
+                `tabSalary Detail` sd join `tabSalary Slip` ss on sd.parent=ss.name
+            where
+                sd.parentfield='earnings'
+                and sd.is_tax_applicable=1
+                and is_flexible_benefit=0
+                and ss.docstatus=1
+                and ss.employee=%(employee)s
+                and ss.start_date between %(from_date)s and %(to_date)s
+                and ss.end_date between %(from_date)s and %(to_date)s
+            """, {
+                "employee": self.employee,
+                "from_date": start_date,
+                "to_date": end_date
+            })
+        taxable_earnings = flt(taxable_earnings[0][0]) if taxable_earnings else 0
+
+        exempted_amount = 0
+        if allow_tax_exemption:
+            exempted_amount = frappe.db.sql("""
+                select sum(sd.amount)
+                from
+                    `tabSalary Detail` sd join `tabSalary Slip` ss on sd.parent=ss.name
+                where
+                    sd.parentfield='deductions'
+                    and sd.exempted_from_income_tax=1
+                    and is_flexible_benefit=0
+                    and ss.docstatus=1
+                    and ss.employee=%(employee)s
+                    and ss.start_date between %(from_date)s and %(to_date)s
+                    and ss.end_date between %(from_date)s and %(to_date)s
+                """, {
+                    "employee": self.employee,
+                    "from_date": start_date,
+                    "to_date": end_date
+                })
+            exempted_amount = flt(exempted_amount[0][0]) if exempted_amount else 0
+        return taxable_earnings - exempted_amount
+
 
 
 def calculate_pieces(self):
