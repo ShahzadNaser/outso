@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from erpnext.hr.doctype.leave_application.leave_application import LeaveApplication, AttendanceAlreadyMarkedError
+from erpnext.hr.doctype.leave_application.leave_application import LeaveApplication, AttendanceAlreadyMarkedError,  get_number_of_leave_days, get_leave_balance_on
 from frappe.utils import getdate
 from erpnext.buying.doctype.supplier_scorecard.supplier_scorecard import daterange
 
@@ -44,3 +44,13 @@ class CusotmLeaveApplication(LeaveApplication):
 		if attendance and self.description != "Late Arrival":
 			frappe.throw(_("Attendance for employee {0} is already marked for this day").format(self.employee),
 				AttendanceAlreadyMarkedError)
+	def before_save(self):
+		if self.from_date and self.to_date:
+			total_leave_days = get_number_of_leave_days(self.employee, self.leave_type,
+				self.from_date, self.to_date, self.half_day, self.half_day_date)
+			leave_balance = get_leave_balance_on(self.employee, self.leave_type, self.from_date, self.to_date,
+								consider_all_leaves_in_the_allocation_period=True)
+
+			if self.status != "Rejected" and (leave_balance < total_leave_days or not leave_balance):
+				frappe.throw(_("There is not enough leave balance for Leave Type {0}")
+					.format(self.leave_type))
