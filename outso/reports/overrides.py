@@ -9,8 +9,10 @@ from frappe.desk.query_report import get_report_doc, get_prepared_report_result,
 def override_reports():
     # override trial balance report
     from outso.reports import monthly_attendance_sheet
-    monthly_attendance_sheet.main()
+    from outso.reports import salary_register
 
+    monthly_attendance_sheet.main()
+    salary_register.main()
 
 @frappe.whitelist()
 @frappe.read_only()
