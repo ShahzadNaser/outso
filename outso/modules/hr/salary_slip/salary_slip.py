@@ -4,7 +4,13 @@
 import frappe
 from frappe import _
 import math
-from frappe.utils import getdate, formatdate, flt
+from frappe.utils import (
+	cint,
+	flt,
+	formatdate,
+	getdate,
+	rounded,
+)
 from erpnext.payroll.doctype.payroll_period.payroll_period import get_period_factor
 from erpnext.payroll.doctype.salary_slip.salary_slip import SalarySlip
 import re
@@ -79,61 +85,82 @@ class CustomSalarySlip(SalarySlip):
         #frappe.cache().set_value(key, data, expires_in_sec=100)
         return data
 
-    def calculate_variable_tax(self, payroll_period, tax_component):
-        # get Tax slab from salary structure assignment for the employee and payroll period
-        tax_slab = self.get_income_tax_slabs(payroll_period)
+    def get_taxable_earnings(self, allow_tax_exemption=False, based_on_payment_days=0):
+        joining_date, relieving_date = self.get_joining_and_relieving_dates()
+        taxable_earnings = 0
+        additional_income = 0
+        additional_income_with_full_tax = 0
+        flexi_benefits = 0
+        payment_days = self.get_payment_days(joining_date,relieving_date, frappe.db.get_single_value("Payroll Settings", "include_holidays_in_total_working_days"))
+        for earning in self.earnings:
+            if based_on_payment_days:
+                amount, additional_amount = self.get_amount_based_on_payment_days(earning, joining_date, relieving_date, payment_days)
+            else:
+                if earning.additional_amount:
+                    amount, additional_amount = earning.amount, earning.additional_amount
+                else:
+                    amount, additional_amount = earning.default_amount, earning.additional_amount
 
-        # get remaining numbers of sub-period (period for which one salary is processed)
-        remaining_sub_periods = get_period_factor(self.employee,
-            self.start_date, self.end_date, self.payroll_frequency, payroll_period)[1]
-        # get taxable_earnings, paid_taxes for previous period
-        previous_taxable_earnings = self.get_taxable_earnings_for_prev_period(payroll_period.start_date,
-            self.start_date, tax_slab.allow_tax_exemption)
-        previous_total_paid_taxes = self.get_tax_paid_in_period(payroll_period.start_date, self.start_date, tax_component)
+            if earning.is_tax_applicable:
+                if earning.is_flexible_benefit:
+                    flexi_benefits += amount
+                else:
+                    taxable_earnings += (amount - additional_amount)
+                    additional_income += additional_amount
 
-        # get taxable_earnings for current period (all days)
-        current_taxable_earnings = self.get_taxable_earnings(tax_slab.allow_tax_exemption)
-        future_structured_taxable_earnings = current_taxable_earnings.taxable_earnings * (math.ceil(remaining_sub_periods) - 1)
+                    # Get additional amount based on future recurring additional salary
+                    if additional_amount and earning.is_recurring_additional_salary:
+                        additional_income += self.get_future_recurring_additional_amount(earning.additional_salary,
+                            earning.additional_amount) # Used earning.additional_amount to consider the amount for the full month
 
-        # get taxable_earnings, addition_earnings for current actual payment days
-        current_taxable_earnings_for_payment_days = self.get_taxable_earnings(tax_slab.allow_tax_exemption, based_on_payment_days=0)
-        current_structured_taxable_earnings = current_taxable_earnings_for_payment_days.taxable_earnings
-        current_additional_earnings = current_taxable_earnings_for_payment_days.additional_income
-        current_additional_earnings_with_full_tax = current_taxable_earnings_for_payment_days.additional_income_with_full_tax
+                    if earning.deduct_full_tax_on_selected_payroll_date:
+                        additional_income_with_full_tax += additional_amount
 
-        # Get taxable unclaimed benefits
-        unclaimed_taxable_benefits = 0
-        if self.deduct_tax_for_unclaimed_employee_benefits:
-            unclaimed_taxable_benefits = self.calculate_unclaimed_taxable_benefits(payroll_period)
-            unclaimed_taxable_benefits += current_taxable_earnings_for_payment_days.flexi_benefits
+        if allow_tax_exemption:
+            for ded in self.deductions:
+                if ded.exempted_from_income_tax:
+                    amount, additional_amount = ded.amount, ded.additional_amount
+                    if based_on_payment_days:
+                        amount, additional_amount = self.get_amount_based_on_payment_days(ded, joining_date, relieving_date)
 
-        # Total exemption amount based on tax exemption declaration
-        total_exemption_amount = self.get_total_exemption_amount(payroll_period, tax_slab)
+                    taxable_earnings -= flt(amount - additional_amount)
+                    additional_income -= additional_amount
 
-        #Employee Other Incomes
-        other_incomes = self.get_income_form_other_sources(payroll_period) or 0.0
+                    if additional_amount and ded.is_recurring_additional_salary:
+                        additional_income -= self.get_future_recurring_additional_amount(ded.additional_salary,
+                            ded.additional_amount) # Used ded.additional_amount to consider the amount for the full month
 
-        # Total taxable earnings including additional and other incomes
-        total_taxable_earnings = previous_taxable_earnings + current_structured_taxable_earnings + future_structured_taxable_earnings \
-            + current_additional_earnings + other_incomes + unclaimed_taxable_benefits - total_exemption_amount
+        return frappe._dict({
+            "taxable_earnings": taxable_earnings,
+            "additional_income": additional_income,
+            "additional_income_with_full_tax": additional_income_with_full_tax,
+            "flexi_benefits": flexi_benefits
+        })
 
-        # Total taxable earnings without additional earnings with full tax
-        total_taxable_earnings_without_full_tax_addl_components = total_taxable_earnings - current_additional_earnings_with_full_tax
+    def get_amount_based_on_payment_days(self, row, joining_date, relieving_date, payment_days = False):
+        amount, additional_amount = row.amount, row.additional_amount
+        if (self.salary_structure and
+            cint(row.depends_on_payment_days) and cint(self.total_working_days)
+            and not (row.additional_salary and row.default_amount) # to identify overwritten additional salary
+            and (not self.salary_slip_based_on_timesheet or
+                getdate(self.start_date) < joining_date or
+                (relieving_date and getdate(self.end_date) > relieving_date)
+            )):
+            additional_amount = flt((flt(row.additional_amount) * flt(payment_days or self.payment_days)
+                / cint(self.total_working_days)), row.precision("additional_amount"))
+            amount = flt((flt(row.default_amount) * flt(payment_days or self.payment_days)
+                / cint(self.total_working_days)), row.precision("amount")) + additional_amount
 
-        # Structured tax amount
-        total_structured_tax_amount = self.calculate_tax_by_tax_slab(
-            total_taxable_earnings_without_full_tax_addl_components, tax_slab)
-        current_structured_tax_amount = (total_structured_tax_amount - previous_total_paid_taxes) / remaining_sub_periods
-        # Total taxable earnings with additional earnings with full tax
-        full_tax_on_additional_earnings = 0.0
-        if current_additional_earnings_with_full_tax:
-            total_tax_amount = self.calculate_tax_by_tax_slab(total_taxable_earnings, tax_slab)
-            full_tax_on_additional_earnings = total_tax_amount - total_structured_tax_amount
+        elif not self.payment_days and not self.salary_slip_based_on_timesheet and cint(row.depends_on_payment_days):
+            amount, additional_amount = 0, 0
+        elif not row.amount:
+            amount = flt(row.default_amount) + flt(row.additional_amount)
 
-        current_tax_amount = current_structured_tax_amount + full_tax_on_additional_earnings
-        if flt(current_tax_amount) < 0:
-            current_tax_amount = 0
-        return current_tax_amount
+        # apply rounding
+        if frappe.get_cached_value("Salary Component", row.salary_component, "round_to_the_nearest_integer"):
+            amount, additional_amount = rounded(amount), rounded(additional_amount)
+
+        return amount, additional_amount
 
     def get_taxable_earnings_for_prev_period(self, start_date, end_date, allow_tax_exemption=False):
         taxable_earnings = frappe.db.sql("""
