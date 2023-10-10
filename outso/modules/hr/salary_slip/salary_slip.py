@@ -99,6 +99,16 @@ class CustomSalarySlip(SalarySlip):
         # get taxable_earnings, addition_earnings for current actual payment days
         current_taxable_earnings_for_payment_days = self.get_taxable_earnings(tax_slab.allow_tax_exemption, based_on_payment_days=0)
         current_structured_taxable_earnings = current_taxable_earnings_for_payment_days.taxable_earnings
+        print(current_taxable_earnings_for_payment_days)
+        payment_days = 0
+        if joining_date and getdate(self.start_date) < getdate(joining_date) <  getdate(self.end_date):
+            payment_days = date_diff(getdate(self.end_date), getdate(joining_date)) + 1
+        if relieving_date and  getdate(self.start_date) < getdate(relieving_date) < getdate(self.end_date):
+            payment_days = date_diff(getdate(relieving_date), getdate(self.start_date)) + 1
+        if payment_days:
+            total_working_days =  date_diff(getdate(self.end_date), getdate(self.start_date)) + 1
+            current_structured_taxable_earnings = flt(current_structured_taxable_earnings/total_working_days*payment_days)
+            
         current_additional_earnings = current_taxable_earnings_for_payment_days.additional_income
         current_additional_earnings_with_full_tax = current_taxable_earnings_for_payment_days.additional_income_with_full_tax
 
@@ -117,7 +127,7 @@ class CustomSalarySlip(SalarySlip):
         # Total taxable earnings including additional and other incomes
         total_taxable_earnings = previous_taxable_earnings + current_structured_taxable_earnings + future_structured_taxable_earnings \
             + current_additional_earnings + other_incomes + unclaimed_taxable_benefits - total_exemption_amount
-
+        print(previous_taxable_earnings ,current_structured_taxable_earnings ,future_structured_taxable_earnings)
         # Total taxable earnings without additional earnings with full tax
         total_taxable_earnings_without_full_tax_addl_components = total_taxable_earnings - current_additional_earnings_with_full_tax
 
