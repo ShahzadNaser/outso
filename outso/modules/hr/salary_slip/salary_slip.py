@@ -172,7 +172,7 @@ class CustomSalarySlip(SalarySlip):
                     "joining_date": getdate(joining_date),
                     "to_date": end_date
                 },as_dict=True)
-            if fist_month_earnings:
+            if fist_month_earnings and fist_month_earnings[0].get("default_amount") and fist_month_earnings[0].get("total_working_days"):
                 payment_days = date_diff(fist_month_earnings[0].get("end_date"), joining_date) + 1
                 taxable_earnings = taxable_earnings - flt(fist_month_earnings[0].get("default_amount")) + flt((fist_month_earnings[0].get("default_amount")/fist_month_earnings[0].get("total_working_days"))*payment_days)
         exempted_amount = 0
