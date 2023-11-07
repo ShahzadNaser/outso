@@ -43,8 +43,8 @@ def salary_register():
             (', '.join(['%s']*len(salary_slips))), tuple([d.name for d in salary_slips]), as_dict=1):
             salary_components[_(component.type)].append(component.salary_component)
 
-        columns = columns + [(e.replace("Basic Salary","Gross Salary") + ":Currency:120") for e in salary_components[_("Earning")]] + \
-            [_("Basic Pay") + ":Currency:120"] + [(d + ":Currency:120") for d in salary_components[_("Deduction")]] + \
+        columns = columns + [(e.replace("Basic Salary","Salary After Absent Deductions") + ":Currency:120") for e in salary_components[_("Earning")]] + \
+            [_("Base Pay") + ":Currency:120"] + [(d + ":Currency:120") for d in salary_components[_("Deduction")]] + \
             [_("Absent Deductions") + ":Currency:120",_("Loan Repayment") + ":Currency:120", _("Total Deduction") + ":Currency:120", _("Net Pay") + ":Currency:120"]
 
         return columns, salary_components[_("Earning")], salary_components[_("Deduction")]
