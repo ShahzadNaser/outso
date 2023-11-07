@@ -51,6 +51,6 @@ class CusotmLeaveApplication(LeaveApplication):
 			leave_balance = get_leave_balance_on(self.employee, self.leave_type, self.from_date, self.to_date,
 								consider_all_leaves_in_the_allocation_period=True)
 
-			if self.status != "Rejected" and (leave_balance < total_leave_days or not leave_balance):
+			if self.status != "Rejected" and (leave_balance < total_leave_days or not leave_balance) and not frappe.db.get_value("Leave Type",self.leave_type, "is_lwp"):
 				frappe.throw(_("There is not enough leave balance for Leave Type {0}")
 					.format(self.leave_type))
