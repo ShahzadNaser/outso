@@ -62,6 +62,9 @@ class CustomSalarySlip(SalarySlip):
             data.setdefault(key, 0)
             data.setdefault(sc.salary_component_abbr, 0)
         
+		# shallow copy of data to store default amounts (without payment days) for tax calculation
+        default_data = data.copy()
+
         #customization calculate and add completed pieces with rates
 
         completed_pieces = calculate_pieces(self)
@@ -77,7 +80,7 @@ class CustomSalarySlip(SalarySlip):
 
         # customization add data in cache for performance imporvement
         #frappe.cache().set_value(key, data, expires_in_sec=100)
-        return data
+        return data, default_data
 
     def calculate_variable_tax(self, payroll_period, tax_component):
         # get Tax slab from salary structure assignment for the employee and payroll period
