@@ -26,7 +26,7 @@ day_abbr = [
 
 def monthly_attendance_sheet():
     import erpnext.hr.report.monthly_attendance_sheet.monthly_attendance_sheet as original
-    def _add_data(employee_map, att_map, filters, holiday_map, conditions, default_holiday_list, leave_list=None):
+    def _add_data(employee_map, att_map, filters, holiday_map, conditions, default_holiday_list, leave_types=None):
         record = []
         emp_att_map = {}
         for emp in employee_map:
@@ -110,9 +110,9 @@ def monthly_attendance_sheet():
                     else:
                         leaves[d.leave_type] = d.count
 
-                for d in leave_list:
-                    if d.split(':', 1)[0] in leaves:
-                        row.append(leaves.get(d.split(':', 1)[0]))
+                for d in leave_types:
+                    if d in leaves:
+                        row.append(leaves.get(d))
                     else:
                         row.append("0.0")
 
@@ -133,7 +133,6 @@ def monthly_attendance_sheet():
         for d in attendance_list:
             att_map.setdefault(d.employee, frappe._dict()).setdefault(d.day_of_month, frappe._dict({"status":"","leave_application":""}))
             att_map[d.employee][d.day_of_month] = frappe._dict({"status":d.status,"leave_application":d.leave_application})
-        print("===============oooo===========oooo================")
         return att_map
 
     original.add_data = _add_data
