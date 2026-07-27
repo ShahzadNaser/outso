@@ -1,7 +1,7 @@
 import frappe
 from frappe.utils import today, nowdate
 from outso.utils import get_post_params
-from erpnext.hr.doctype.leave_application.leave_application import get_leave_allocation_records, get_leave_balance_on, get_leaves_for_period, get_pending_leaves_for_period
+from erpnext.hr.doctype.leave_application.leave_application import get_leave_allocation_records, get_leave_balance_on, get_leaves_for_period, get_leaves_pending_approval_for_period
 
 @frappe.whitelist()
 def get():
@@ -43,7 +43,7 @@ def get_leave_details(employee, date=nowdate()):
 
 		end_date = allocation.to_date
 		leaves_taken = get_leaves_for_period(employee, d, allocation.from_date, end_date) * -1
-		leaves_pending = get_pending_leaves_for_period(employee, d, allocation.from_date, end_date)
+		leaves_pending = get_leaves_pending_approval_for_period(employee, d, allocation.from_date, end_date)
 
 		leave_allocation[d] = {
 			"total_leaves": total_allocated_leaves,
